@@ -1,0 +1,9 @@
+{
+  "name": "deye-hybrid-modbus2mqtt",
+  "version": "1.0.0",
+  "author": "Stephan Häuslschmid <stephan.haeuslschmid@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "modbus-serial": "^8.0.6"
+  }
+}
