@@ -3,7 +3,7 @@ Reads values from a 3 phase deye hybrid inverter via modbus and pushes them to m
 
 
 ## How to run this
-You can run this via docker:
+You can run this via docker as a service:
 
 ```
 docker run -d \
