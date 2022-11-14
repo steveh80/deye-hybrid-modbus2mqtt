@@ -4,6 +4,7 @@
   "author": "Stephan Häuslschmid <stephan.haeuslschmid@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "modbus-serial": "^8.0.6"
+    "modbus-serial": "^8.0.6",
+    "mqtt": "^4.3.7"
   }
 }
