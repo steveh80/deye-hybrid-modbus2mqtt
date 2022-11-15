@@ -26,6 +26,8 @@ const registers = [
 
 
 const startRegister = 600;
+let lastData = null;
+let lastPvPowerTotal = null;
 
 setInterval(function() {
 
@@ -33,15 +35,23 @@ setInterval(function() {
 
         for (register of registers) {
             let index = register.address - startRegister;
-            let value = ((data.data[index] << 16) >> 16) * register.unit;
 
-            mqttClient.publish(mqttTopic + register.topic, value.toString());
+            // only update value to mqtt if it has changed
+            if (lastData == null || lastData[index] !== data.data[index]) {
+                let value = ((data.data[index] << 16) >> 16) * register.unit;
+
+                mqttClient.publish(mqttTopic + register.topic, value.toString());            
+            }
         }
 
         // calculate power total
         let pvPowerTotal = data.data[72] + data.data[73];
-        mqttClient.publish(mqttTopic + "pv/power/total", pvPowerTotal.toString());
+        if ( lastPvPowerTotal == null || pvPowerTotal !== lastPvPowerTotal) {
+            mqttClient.publish(mqttTopic + "pv/power/total", pvPowerTotal.toString());
+        }
 
+        lastData = data.data;
+        lastPvPowerTotal = pvPowerTotal;
     });
 
 }, 1000);
