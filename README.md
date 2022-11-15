@@ -15,6 +15,6 @@ docker run -d \
   --env MQTT_PWD="xxxx" \
   --env MQTT_TOPIC_PREFIX="deye-inverter/" \
   --env DEVICE="/dev/ttyUSB0" \
-  deye-hybrid-modbus2mqtt
+  haeuslschmid/deye-hybrid-modbus2mqtt
 ```
 
