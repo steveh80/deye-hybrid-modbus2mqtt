@@ -16,7 +16,8 @@ client.setTimeout(500);
 
 
 const registers = [
-    {"address": 607, "topic": "grid/power/total", "unit": 1},
+    {"address": 619, "topic": "grid/power/total", "unit": 1},
+    {"address": 607, "topic": "grid/power/inverter", "unit": 1},
     {"address": 609, "topic": "grid/frequency", "unit": 0.01},
     {"address": 637, "topic": "inverter/power/total", "unit": 1},
     {"address": 643, "topic": "load/power/total", "unit": 1},
