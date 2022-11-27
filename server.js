@@ -22,6 +22,8 @@ const registers = [
     {"address": 637, "topic": "inverter/power/total", "unit": 1},
     {"address": 643, "topic": "load/power/total", "unit": 1},
     {"address": 672, "topic": "pv/power/pv1", "unit": 1},
+    {"address": 676, "topic": "pv/voltage/pv1", "unit": 0.1},
+    {"address": 678, "topic": "pv/voltage/pv2", "unit": 0.1},
     {"address": 673, "topic": "pv/power/pv2", "unit": 1}
 ];
 
@@ -32,7 +34,12 @@ let lastPvPowerTotal = null;
 
 setInterval(function() {
 
-    client.readHoldingRegisters(startRegister, 90, function(err, data) {
+    client.readHoldingRegisters(startRegister, 80, function(err, data) {
+	if (err) {
+	    console.log(err);
+	    process.exit(1);
+	}
+
 
         for (register of registers) {
             let index = register.address - startRegister;
