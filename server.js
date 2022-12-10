@@ -18,10 +18,15 @@ client.setID(process.env.CLIENTID || 1);
 client.setTimeout(500);
 
 const registers = {
+    516: {"topic": "battery/charge/total", "unit": 0.1},
+    518: {"topic": "battery/discharge/total", "unit": 0.1},
     529: {"topic": "pv/power/total/day", "unit": 0.1},
     530: {"topic": "pv/power/pv1/day", "unit": 0.1},
     531: {"topic": "pv/power/pv2/day", "unit": 0.1},
     534: {"topic": "pv/power/total/all", "unit": 0.1},
+    587: {"topic": "battery/voltage", "unit": 0.01},
+    588: {"topic": "battery/soc", "unit": 1},
+    590: {"topic": "battery/power", "unit": 1},
     619: {"topic": "grid/power/total", "unit": 1},
     607: {"topic": "grid/power/inverter", "unit": 1},
     609: {"topic": "grid/frequency", "unit": 0.01},
@@ -45,6 +50,7 @@ function readRegisters(startRegister, length) {
             let addressIndex = parseInt(index) + startRegister;
 
             if (registers.hasOwnProperty(addressIndex)) {
+		    //console.log(registers[addressIndex].topic, data.data[index]);
                 let value = Math.floor(((data.data[index] << 16) >> 16) * registers[addressIndex].unit*10)/10;
 
                 // only publish new or changed values
@@ -71,9 +77,9 @@ function calculateTotals() {
 let run = async ()=>{
     while (true) {
         await delay(modbusReadDelay);   
-        readRegisters(500, 90);
+        readRegisters(500, 95);
         await delay(modbusReadDelay);
-        readRegisters(600, 90);
+        readRegisters(600, 95);
         calculateTotals();
     }
 }
