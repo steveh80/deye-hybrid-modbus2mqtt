@@ -20,10 +20,14 @@ client.setTimeout(500);
 const registers = {
     516: {"topic": "battery/charge/total", "unit": 0.1},
     518: {"topic": "battery/discharge/total", "unit": 0.1},
+    523: {"topic": "grid/buy/all", "unit": 0.1},
+    525: {"topic": "grid/sell/all", "unit": 0.1},
     529: {"topic": "pv/power/total/day", "unit": 0.1},
     530: {"topic": "pv/power/pv1/day", "unit": 0.1},
     531: {"topic": "pv/power/pv2/day", "unit": 0.1},
     534: {"topic": "pv/power/total/all", "unit": 0.1},
+    527: {"topic": "load/power/total/all", "unit": 0.1},
+    552: {"topic": "status/ac-relay", "unit": 1},
     587: {"topic": "battery/voltage", "unit": 0.01},
     588: {"topic": "battery/soc", "unit": 1},
     590: {"topic": "battery/power", "unit": 1},
@@ -41,6 +45,7 @@ function readRegisters(startRegister, length) {
     client.readHoldingRegisters(startRegister, length, function(err, data) {
         if (err !== null) {
             console.log(err);
+	    process.exit(1);
             return;
         }
 
