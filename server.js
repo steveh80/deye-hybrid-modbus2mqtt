@@ -7,6 +7,12 @@ const mqtt = require("mqtt");
 const mqttClient = mqtt.connect(process.env.MQTT_SERVER, {"username": process.env.MQTT_USER, "password": process.env.MQTT_PWD});
 const mqttTopic = "deye-inverter/";
 
+mqttClient.on('connect', function() {
+    mqttClient.subscribe(mqttTopic + 'pv/sell');
+    mqttClient.subscribe(mqttTopic + 'battery/min-voltage');
+    mqttClient.subscribe(mqttTopic + 'gen');
+})
+
 // helper function
 async function delay(ms) {
     return await new Promise(resolve => setTimeout(resolve, ms));
@@ -16,6 +22,8 @@ async function delay(ms) {
 client.connectRTUBuffered(process.env.DEVICE || "/dev/ttyUSB0", { baudRate: process.env.BOUDRATE || 9600 });
 client.setID(process.env.CLIENTID || 1);
 client.setTimeout(500);
+
+var registerWriteQueue = [];
 
 const registers = {
     516: {"topic": "battery/charge/total", "unit": 0.1},
@@ -79,6 +87,13 @@ function calculateTotals() {
     lastPvPowerTotal = pvPowerTotal;
 }
 
+function writeRegister() {
+	if ( registerWriteQueue.length > 0 ) {
+		var item = registerWriteQueue.pop();
+		client.writeRegisters(item.register, item.payload);
+	}
+}
+
 let run = async ()=>{
     while (true) {
         await delay(modbusReadDelay);   
@@ -86,8 +101,22 @@ let run = async ()=>{
         await delay(modbusReadDelay);
         readRegisters(600, 95);
         calculateTotals();
+        await delay(modbusReadDelay);
+	writeRegister();
     }
 }
 run();
 
-
+mqttClient.on('message', function (topic, payload) {
+	if ( topic == mqttTopic + 'pv/sell' ) {
+		registerWriteQueue.push({"register": 145, "payload": [(payload.toString() == 1 ? 0x01 : 0x00)]});
+	}
+	if ( topic == mqttTopic + 'battery/min-voltage' ) {
+		var volt = payload.toString();
+		registerWriteQueue.push({"register": 160, "payload": [volt, volt, volt, volt, volt, volt]});
+	}
+	if ( topic == mqttTopic + 'gen' ) {
+		registerWriteQueue.push({"register": 133, "payload":  [(payload.toString() == 1 ? 2 : 0)]});
+	}
+	console.log(topic, payload.toString());
+})
