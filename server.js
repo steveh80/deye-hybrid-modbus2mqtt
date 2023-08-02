@@ -64,8 +64,11 @@ function readRegisters(startRegister, length) {
 
             if (registers.hasOwnProperty(addressIndex)) {
 		    //console.log(registers[addressIndex].topic, data.data[index]);
-                let value = Math.floor(((data.data[index] << 16) >> 16) * registers[addressIndex].unit*10)/10;
-
+                if ( addressIndex == 534 ) {
+		    value = Math.floor(((data.data[index] << 32) >> 32) * registers[addressIndex].unit*10)/10;
+		} else {
+		    value = Math.floor(((data.data[index] << 16) >> 16) * registers[addressIndex].unit*10)/10;
+		}
                 // only publish new or changed values
                 if (! registers[addressIndex].hasOwnProperty('lastValue') || value !== registers[addressIndex].lastValue ) {
                     mqttClient.publish(mqttTopic + registers[addressIndex].topic, value.toString());            
