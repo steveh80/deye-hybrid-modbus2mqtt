@@ -22,14 +22,15 @@ instrument.serial.baudrate = 9600           # Baud
 instrument.serial.timeout  = 0.50           # 0.05 seconds is too fast
 
 data = {}
-
+previousData = {}
 
 def process():
+  global previousData
+
   try:
     ## Read value 
     data['pv/power/total/all'] = instrument.read_register(registeraddress=534, number_of_decimals=1) + instrument.read_register(registeraddress=535) * 6553.5
     data['battery/charge/total'] = instrument.read_register(registeraddress=516, number_of_decimals=1) + instrument.read_register(registeraddress=517) * 6553.5
- 
     data['battery/discharge/total'] = instrument.read_register(registeraddress=518, number_of_decimals=1) + instrument.read_register(registeraddress=519) * 6553.5
     data['grid/buy/all'] = instrument.read_register(registeraddress=522, number_of_decimals=1) + instrument.read_register(registeraddress=523) * 6553.5
     data['grid/sell/all'] = instrument.read_register(registeraddress=524, number_of_decimals=1) + instrument.read_register(registeraddress=525) * 6553.5
@@ -41,7 +42,7 @@ def process():
     data['grid/power/total'] = instrument.read_register(registeraddress=619, signed=True)
     data['grid/power/inverter'] = instrument.read_register(registeraddress=607, signed=True)
     data['grid/frequency'] = instrument.read_register(registeraddress=609, number_of_decimals=2)
-    data['inverter/power/total'] = instrument.read_register(registeraddress=636)
+    data['inverter/power/total'] = instrument.read_register(registeraddress=636, signed=True)
     data['load/power/total'] = instrument.read_register(registeraddress=643, signed=True)
     data['pv/power/pv1'] = instrument.read_register(registeraddress=672)
     data['pv/power/pv2'] = instrument.read_register(registeraddress=673)
@@ -51,8 +52,14 @@ def process():
     print('ERROR: Failed to read from instrument:\n',e)
  
   instrument.serial.close()
+
   for topic, message in data.items():
-  	mqtt.single(mqtt_topic + '/' + topic, payload=message, qos=0, retain=False, hostname=mqtt_server, port=1883, auth={'username': mqtt_user, 'password': mqtt_pwd})
+	  if previousData.get(topic) != message:
+		  mqtt.single(mqtt_topic + '/' + topic, payload=message, qos=0, retain=False, hostname=mqtt_server, port=1883, auth={'username': mqtt_user, 'password': mqtt_pwd})
+
+  previousData = data.copy()
+  print(previousData)
+
 
 while True:
   process()
