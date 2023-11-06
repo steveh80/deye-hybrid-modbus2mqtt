@@ -1,11 +1,9 @@
-FROM node
+FROM python:3-alpine
 
 WORKDIR /app
 
-COPY ["package.json", "package-lock.json*", "./"]
-
-RUN npm install
+RUN pip install minimalmodbus paho-mqtt
 
 COPY . .
 
-CMD [ "node", "./server.js" ]
+CMD ["python", "-u", "main.py"]
